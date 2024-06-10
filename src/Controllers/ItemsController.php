@@ -40,16 +40,27 @@ class ItemsController extends LfmController
         $currentPage = self::getCurrentPageFromRequest();
 
         $perPage = $this->helper->getPaginationPerPage();
-
-        if (config('lfm.default_sort') == 'time') {
-            $items = array_merge($this->lfm->folders(), array_reverse($this->lfm->files()));
-        } else {
-            $items = array_merge($this->lfm->folders(), $this->lfm->files());
+    
+        $files = $this->lfm->files();
+        if($request->sort_type=='time'){
+            $files = array_reverse($files);
         }
+    
+        $items = array_merge($this->lfm->folders(), $files);
+        
+        // $currentPage = self::getCurrentPageFromRequest();
 
-        $items = array_map(function ($item) {
-            return $item->fill()->attributes;
-        }, $items);
+        // $perPage = $this->helper->getPaginationPerPage();
+
+        // if (config('lfm.default_sort') == 'time') {
+        //     $items = array_merge($this->lfm->folders(), array_reverse($this->lfm->files()));
+        // } else {
+        //     $items = array_merge($this->lfm->folders(), $this->lfm->files());
+        // }
+
+        // $items = array_map(function ($item) {
+        //     return $item->fill()->attributes;
+        // }, $items);
 
         $keyword = request()->get('keyword', "");
 
