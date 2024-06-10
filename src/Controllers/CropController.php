@@ -2,8 +2,7 @@
 
 namespace UniSharp\LaravelFilemanager\Controllers;
 
-use Intervention\Image\Facades\Image as InterventionImageV2;
-use Intervention\Image\Laravel\Facades\Image as InterventionImageV3;
+use Intervention\Image\Facades\Image;
 use UniSharp\LaravelFilemanager\Events\ImageIsCropping;
 use UniSharp\LaravelFilemanager\Events\ImageWasCropped;
 
@@ -26,7 +25,7 @@ class CropController extends LfmController
     /**
      * Crop the image (called via ajax).
      */
-    public function getCropImage($overWrite = true)
+    public function getCropimage($overWrite = true)
     {
         $image_name = request('img');
         $image_path = $this->lfm->setName($image_name)->path('absolute');
@@ -43,15 +42,9 @@ class CropController extends LfmController
         $crop_info = request()->only('dataWidth', 'dataHeight', 'dataX', 'dataY');
 
         // crop image
-        if (class_exists(InterventionImageV2::class)) {
-            InterventionImageV2::make($image_path)
-                ->crop(...array_values($crop_info))
-                ->save($crop_path);
-        } else {
-            InterventionImageV3::read($image_path)
-                ->crop(...array_values($crop_info))
-                ->save($crop_path);
-        }
+        Image::make($image_path)
+            ->crop(...array_values($crop_info))
+            ->save($crop_path);
 
         // make new thumbnail
         $this->lfm->generateThumbnail($image_name);
@@ -59,7 +52,7 @@ class CropController extends LfmController
         event(new ImageWasCropped($image_path));
     }
 
-    public function getNewCropImage()
+    public function getNewCropimage()
     {
         $this->getCropimage(false);
     }
